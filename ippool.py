@@ -1,6 +1,7 @@
 import requests
 import re
 import os
+import random
 import pandas as pd
 from lxml import etree
 
@@ -11,13 +12,16 @@ class IPPools:
     page = 1
 
     def __init__(self):
+        if os.path.exists('iplist.csv') == False:
+            return
         try:
             iplist: pd.DataFrame = pd.read_csv('iplist.csv')
-            self.ip_pool = iplist.values.tolist()
+            keylist = iplist.keys().tolist()
+            self.ip_pool = [dict(zip(keylist, val))
+                            for val in iplist.values.tolist()]
         except Exception as e:
             print("初始化 csv文件转换操作失败： {}".format(e))
-            pass
-        
+
         try:
             with open("page.a", 'r+') as page_record:
                 page_str = "1"
@@ -29,29 +33,46 @@ class IPPools:
         except Exception as e:
             pass
 
-    def chooseIp(self,):
-        self.location+=1
+    def chooseIp(self, random=False):
+        self.location += 1
         if self.location >= len(self.ip_pool):
             print("当前ip池数量不足，将进行爬取...")
-            os.remove("iplist.csv")
+            try:
+                os.remove("iplist.csv")
+            except Exception as e:
+                pass
             self.ip_pool = None
             self.ip_pool = []
             self.location = 0
             self.fetchPage(page=self.page)
 
         infs: list = self.ip_pool[self.location]
-        return "http://{}:{}".format(infs[1], infs[2])
+        return "http://{}:{}".format(infs["IP"], infs["PORT"])
+
+    def randomIp(self):
+        if len(self.ip_pool) == 0:
+            print("当前ip池数量不足，将进行爬取...")
+            try:
+                os.remove("iplist.csv")
+            except Exception as e:
+                pass
+            self.ip_pool = None
+            self.ip_pool = []
+            self.location = 0
+            self.fetchPage(page=self.page)
+        infs = random.choice(self.ip_pool)
+        return "http://{}:{}".format(infs["IP"], infs["PORT"])
 
     def verifyIpPoolCount(self,):
-        if(len(self.ip_pool)==0):
+        if(len(self.ip_pool) == 0):
             self.fetchPage(page=self.page)
 
-    def makeUrl(self, page = 1):
+    def makeUrl(self, page=1):
         if page <= 1:
-            return "https://www.kuaidaili.com/free/inha/"
-        else :
-            return "https://www.kuaidaili.com/free/inha/{}/".format(page)
-    
+            return "https://www.kuaidaili.com/free/intr/"
+        else:
+            return "https://www.kuaidaili.com/free/intr/{}/".format(page)
+
     def makeHeaders(self):
         return {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
@@ -67,29 +88,29 @@ class IPPools:
         }
 
     def fetchPage(self, page=1):
-        response = requests.get(url=self.makeUrl(page=page),headers=self.makeHeaders())
+        response = requests.get(url=self.makeUrl(
+            page=page), headers=self.makeHeaders())
         html_code = response.text
         html_element = etree.HTML(html_code)
         trs = html_element.xpath("//div[@id='list']/table/tbody/tr")
         for tr in trs:
             tds_text = tr.xpath("td/text()")
             tds_title = tr.xpath("td/@data-title")
-            res = dict(zip(tds_title,tds_text))
+            res = dict(zip(tds_title, tds_text))
             try:
-                speed = re.search("\d*.?\d+",res['响应速度']).group(0)
+                speed = re.search("\d*.?\d+", res['响应速度']).group(0)
                 if float(speed) > 2.0:
                     continue
                 res['响应速度'] = speed
             except Exception as e:
                 print(format(e))
-            print("开始验证ip.....",end='  ')
+            print("开始验证ip.....", end='  ')
             if self.verifyIpAvailable(res['IP'], res['PORT']):
                 print("验证结束，可用")
                 self.ip_pool.append(res)
             else:
                 print("验证结束，不可用")
 
-            
         print("当前以采集ip :{} 条".format(len(self.ip_pool)))
         if len(self.ip_pool) < 100:
             print("开始采集第{}页".format(page))
@@ -111,14 +132,14 @@ class IPPools:
         @return 验证代理ip是否可用
         """
         proxies = {
-            "http": "http://{}:{}".format(ip, port)
+            "http": "http://{}:{}".format(ip, port),
         }
         try:
-            resposne = requests.get(url='https://www.baidu.com/', proxies=proxies, timeout=2)
+            resposne = requests.get(
+                url='http://www.baidu.com/', proxies=proxies, timeout=2)
             return resposne.status_code == 200
         except Exception as e:
             return False
 
 
-ippool = IPPools()
-print(ippool.chooseIp())
+# IPPools().randomIp()
