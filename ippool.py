@@ -4,7 +4,8 @@ import os
 import random
 import pandas as pd
 from lxml import etree
-
+import threading
+import asyncio
 
 class IPPools:
     ip_pool = []
@@ -44,7 +45,8 @@ class IPPools:
             self.ip_pool = None
             self.ip_pool = []
             self.location = 0
-            self.fetchPage(page=self.page)
+            # self.fetchPage(page=self.page)
+            self.fetch()
 
         infs: list = self.ip_pool[self.location]
         return "http://{}:{}".format(infs["IP"], infs["PORT"])
@@ -59,13 +61,16 @@ class IPPools:
             self.ip_pool = None
             self.ip_pool = []
             self.location = 0
-            self.fetchPage(page=self.page)
+            # self.fetchPage(page=self.page)
+            self.fetch()
+
         infs = random.choice(self.ip_pool)
         return "http://{}:{}".format(infs["IP"], infs["PORT"])
 
     def verifyIpPoolCount(self,):
         if(len(self.ip_pool) == 0):
-            self.fetchPage(page=self.page)
+            #self.fetchPage(page=self.page)
+            self.fetch()
 
     def makeUrl(self, page=1):
         if page <= 1:
@@ -86,6 +91,19 @@ class IPPools:
             'Upgrade-Insecure-Requests': '1',
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36',
         }
+    def fetch(self, batch=0):
+
+        # async def _makeGroup():
+        #     await asyncio.gather(self.fetchPage(0),self.fetchPage(1),self.fetchPage(2),self.fetchPage(3),self.fetchPage(4),)
+
+        # asyncio.run(_makeGroup())
+        # 开启4条线程
+        thread_count = 4
+        # 访问500页
+        endpage = 500
+        for thread_num in range(thread_count):
+            threading.Thread(target=self.fetchPage,args=(thread_num,)).start()
+
 
     def fetchPage(self, page=1):
         response = requests.get(url=self.makeUrl(
