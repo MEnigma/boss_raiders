@@ -55,10 +55,10 @@ class BossSpider:
             'accept-encoding': 'gzip, deflate, br',
             'accept-language': 'zh-CN,zh;q=0.9',
             'cache-control': 'max-age=0',
-            'cookie': '_uab_collina=155305913216567736648592; lastCity=101010100; _bl_uid=gejz5zj790mmy60Ckx7RxzykspCR; JSESSIONID=""; Hm_lvt_194df3105ad7148dcf2b98a91b5e727a=1565687647,1565748170,1565922676,1566209124; __c=1566209124; __g=-; __l=l=%2Fwww.zhipin.com%2F&r=; __zp_stoken__=c839siC63ueeCcCCNBQc%2F0bBbQDRW9S35RLqvXzQIW3ZVDA3E523rfzUwbyVVjYSgX%2FqupbHL5mMWAGUFzl1XsCpiA%3D%3D; __a=21201824.1553059131.1565922676.1566209124.221.17.3.221; Hm_lpvt_194df3105ad7148dcf2b98a91b5e727a=1566209215',
-            'sec-fetch-mode': 'navigate',
-            'referer': 'https://www.zhipin.com/web/common/security-check.html?seed=V6mIAvvU3v6Aha3JvLMcKpnX2d9eKeNc4UPcuQvkuck%3D&name=d3f4b0ad&ts=1566209213463&callbackUrl=%2Fc101010100-p100199%2F%3Fpage%3D200%26ka%3Dpage-200',
-            'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36',
+            'cookie': 'lastCity=101010100; _uab_collina=156509435369098913376332; __c=1566223014; __g=-; __l=l=%2Fwww.zhipin.com%2F&r=https%3A%2F%2Fwww.baidu.com%2Flink%3Furl%3D3T-D7CFZorMLSfk37tqPEyhS6yLRDVihE5X3sdui0bxtSJOCp_EkcNdU092DXGCt%26wd%3D%26eqid%3Da07fedd300028c1a000000025d5aaaa0; Hm_lvt_194df3105ad7148dcf2b98a91b5e727a=1565094354,1565404726,1566223014; __zp_stoken__=c839QoxxJZbv9ctb1NDfYpQhUs6hC%2FN0h%2FA9mzYComOHIUGhsdRtEZSt1wke6zcqG74neN1kBLXy1Lk4bbuHYkoogA%3D%3D; __a=1712998.1565094354.1565404726.1566223014.25.3.4.25; Hm_lpvt_194df3105ad7148dcf2b98a91b5e727a=1566223347',
+            'referer': 'https://www.zhipin.com/web/common/security-check.html?seed=QbRi4A+65gFWRajo+UKSDq4LoKJTgLKoBbORaTUGx9o=&name=d3f4b0ad&ts=1566223304539&callbackUrl=/c101010100-p100199/',
+            'upgrade-insecure-requests': '1',
+            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36'
         }
     def getCategoryList(self):
         response = requests.get("https://www.zhipin.com",headers=self.headers())
@@ -97,7 +97,7 @@ class BossSpider:
         html_code = response.text
         html_element = etree.HTML(html_code)
         joblist = html_element.xpath("//div[@class='job-list']/ul/li/div[@class='job-primary']")
-        print("{}页有 {} 条职位信息".format(page, len(joblist)))
+        print(">> {}page got {} list of job info".format(page, len(joblist)))
         index_group = []
         if len(joblist) == 0:
             print(" ------ WARNNING ------")
@@ -139,30 +139,41 @@ class BossSpider:
             index_group.append(model.toDict())
         
         next_page = html_element.xpath("//a[@class='next disabled']")
-        if os.path.exists(os.path.join(os.path.dirname(__file__),category)) == False:
-            os.makedirs(os.path.join(os.path.dirname(__file__),category))
+        current_category_path = os.path.join(os.path.dirname(__file__),category)
+        print("CATEGORY PATH {} exists:{}".format(current_category_path,os.path.exists(current_category_path)))
+        if os.path.exists(current_category_path) == False:
+            print("MENTION  no categoy dir ,will create")
+            os.makedirs(current_category_path)
+        export_file_name = "{}/{}-{}.csv".format(category,page,category)
+        export_file_name = os.path.join(os.path.dirname(__file__),export_file_name)
+        
         if len(next_page) > 0:
-            print("没有下一页,数据获取结束,执行写入操作...", end='  ')
+            print("no next page and will do final write", end='  ')
             # dbframe = pd.DataFrame(self.job_list)
             dbframe = pd.DataFrame(index_group)
-            dbframe.to_csv("{}/{}-{}.csv".format(category,page,category))
-            print("写入完成")
+            dbframe.to_csv(export_file_name)
+            print("WIRTE DONE")
         else:
             dbframe = pd.DataFrame(index_group)
-            dbframe.to_csv("{}/{}-{}.csv".format(category,page,category))
-            print("写入完成")
-            print("下一页查取 page:{}".format(page))
+            dbframe.to_csv(export_file_name)
+            print("WRITE DONE")
+            print("SHOULD FETCH NEXT page:{}".format(page))
 
             self.fetchIndexPageInf(page=page+1,category=category)
 
             
 def read():
-    form = pd.read_csv('category.csv')    
+    categoryname = "category.csv"
+    file_path = os.path.join(os.path.dirname(__file__),categoryname)
+    print("file path :{}".format(file_path))
+    form = pd.read_csv(file_path, encoding='utf-8')    
     data_group = [dict(zip(form.keys().tolist(),val.tolist()))for val in form.values]
     for data in data_group:
         cate = data['url']
         cate = cate.replace("/",'')
-        
+        if data['finished'] == True:
+            continue
+        print("will fetch   category:{}  code:{}".format(data['title'],cate))
         BossSpider().fetchIndexPageInf(category=cate)
 
 
