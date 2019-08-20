@@ -1,0 +1,10 @@
+,adress,company,company_size,company_statue,company_type,educate,experi,hr_head,hr_job,hr_name,salary,title
+0,北京 海淀区 五道口,搜狗,1000-9999人,已上市,互联网,本科,3-5年,"https://img.bosszhipin.com/boss/avatar/avatar_13.png?x-oss-process=image/resize,w_40,limit_0",技术主管,潘松强,20-40K,java高级开发工程师
+1,北京  ,京东集团,10000人以上,已上市,电子商务,硕士,3-5年,"https://img.bosszhipin.com/boss/avatar/avatar_15.png?x-oss-process=image/resize,w_40,limit_0",算法工程师,戈志伟,30-60K,图像、NLP、搜索推荐方向算法/研发工程师
+2,北京 朝阳区 望京,理想汽车,1000-9999人,B轮,智能硬件,本科,3-5年,"https://img.bosszhipin.com/boss/avatar/avatar_16.png?x-oss-process=image/resize,w_40,limit_0",软件工程师,杨炳新,15-20K,Java
+3,北京 朝阳区 望京,阿里巴巴集团,10000人以上,不需要融资,互联网,本科,5-10年,"https://img.bosszhipin.com/boss/avatar/avatar_15.png?x-oss-process=image/resize,w_40,limit_0",算法Leader,余恩运,50-80K·16薪,搜索及推荐算法专家/高级专家
+4,北京 海淀区 中关村,旷视MEGVII,1000-9999人,C轮,计算机服务,本科,1-3年,"https://img.bosszhipin.com/beijin/mcs/useravatar/20190425/e323a2c5f4459cabe209f1d41b128a5e1abfdfec542c29102b7ee1d8a88578f1_s.jpg?x-oss-process=image/resize,w_40,limit_0",高级架构师,许欣然,22-35K·14薪,核心开发工程师
+5,北京 海淀区 上地,百度,10000人以上,已上市,互联网,硕士,1-3年,"https://img.bosszhipin.com/boss/avatar/avatar_6.png?x-oss-process=image/resize,w_40,limit_0",经理,王斐,25-50K,算法工程师
+6,北京 朝阳区 望京,阿朵拉科技,100-499人,不需要融资,移动互联网,本科,3-5年,"https://img.bosszhipin.com/beijin/mcs/useravatar/20160428/39134c72a4f14795679bc85fe7ee607e8c7dd922ad47494fc02c388e12c00eac_s.jpg?x-oss-process=image/resize,w_40,limit_0",创始人,李妍,50-100K,搜索算法工程师
+7,北京 海淀区 清河,小米,10000人以上,已上市,互联网,硕士,1-3年,"https://img.bosszhipin.com/boss/avatar/avatar_8.png?x-oss-process=image/resize,w_40,limit_0",高级算法工程师,王洋,30-50K,机器学习
+8,北京 东城区 东直门,笨鸟社交,100-499人,B轮,企业服务,硕士,3-5年,"https://img2.bosszhipin.com/boss/avatar/avatar_7.png?x-oss-process=image/resize,w_40,limit_0",招聘者,孙锦彬,25-50K,数据挖掘
